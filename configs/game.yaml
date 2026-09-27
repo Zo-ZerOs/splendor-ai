@@ -1,0 +1,32 @@
+# Base-game Splendor rules configuration (4-player only).
+# These are the official 4-player setup quantities. This project targets
+# exactly 4 players; values are kept in config rather than hardcoded so
+# rule tweaks/experiments don't require touching engine code.
+
+num_players: 4
+
+bank:
+  tokens_per_normal_color: 7
+  gold_tokens: 5
+
+board:
+  visible_slots_per_tier: 4
+  tiers: [1, 2, 3]
+
+nobles:
+  # Official rule: nobles in play = num_players + 1
+  count_in_play: 5
+
+player:
+  max_reserved_cards: 3
+  max_tokens_held: 10
+
+rules:
+  # Minimum bank count of a color required before a player may take 2
+  # tokens of that single color with the "P" pick-tokens action.
+  two_same_color_min_bank: 4
+  winning_score: 15
+
+# Starting seat of the human when using splendor_ai.cli.play (0-indexed).
+# Can be overridden via --human-seat.
+default_human_seat: 0

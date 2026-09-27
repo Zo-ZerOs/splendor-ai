@@ -1,0 +1,48 @@
+{
+  "vs_random": {
+    "games": 500,
+    "win_rate": 0.976,
+    "tie_rate": 0.0,
+    "loss_rate": 0.024,
+    "avg_prestige": 16.352,
+    "avg_purchased_cards": 18.098,
+    "avg_turns_per_player": 30.128,
+    "win_rate_by_seat": {
+      "0": 0.976,
+      "1": 0.984,
+      "2": 0.968,
+      "3": 0.976
+    },
+    "games_by_seat": {
+      "0": 125,
+      "1": 125,
+      "2": 125,
+      "3": 125
+    }
+  },
+  "vs_heuristic": {
+    "games": 500,
+    "win_rate": 0.34,
+    "tie_rate": 0.008,
+    "loss_rate": 0.652,
+    "avg_prestige": 12.944,
+    "avg_purchased_cards": 15.048,
+    "avg_turns_per_player": 28.342,
+    "win_rate_by_seat": {
+      "0": 0.36,
+      "1": 0.344,
+      "2": 0.344,
+      "3": 0.312
+    },
+    "games_by_seat": {
+      "0": 125,
+      "1": 125,
+      "2": 125,
+      "3": 125
+    }
+  },
+  "update": 60,
+  "path": "checkpoints/main_run_01\\update_60.pt",
+  "composite": 0.5307999999999999,
+  "vs_medium_win_rate": 0.192
+}

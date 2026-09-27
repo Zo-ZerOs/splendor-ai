@@ -1,0 +1,17 @@
+{
+  "path": "checkpoints/main_run_07_full_rules/update_2500.pt",
+  "promoted_on": "2026-09-16",
+  "method": "manual promotion: a 4-way mixed tournament (800 games, 4 distinct checkpoints at one rotating table) plus symmetric 1-seat-vs-3-copies matchups (300 games each direction) against the previous expert and against main_run_06_no_blind_reserve/update_2000, after the previous expert (main_run_01/update_710) turned out to score worst of 4 in the mixed tournament despite looking strong in a one-directional 1-vs-3 matchup.",
+  "4way_tournament_win_rate": 0.274,
+  "4way_tournament_field": [
+    "main_run_06_no_blind_reserve/update_2000.pt (0.290)",
+    "main_run_07_full_rules/update_2500.pt (0.274) -- this checkpoint",
+    "main_run_01/update_1250.pt (0.219)",
+    "main_run_01/update_710.pt (0.214) -- previous expert"
+  ],
+  "symmetric_vs_run06_u2000": {
+    "this_checkpoint_as_lone_seat_win_rate": 0.2967,
+    "run06_u2000_as_lone_seat_win_rate": 0.2367
+  },
+  "previous_expert": "checkpoints/main_run_01/update_710.pt (demoted to medium)"
+}

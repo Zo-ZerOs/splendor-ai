@@ -1,0 +1,130 @@
+# PPO self-play training configuration.
+
+reward:
+  win: 1.0
+  loss: -1.0
+  tie: 0.0
+  # Small shaping rewards, deliberately kept far below the terminal
+  # win/loss magnitude so the agent never learns to farm prestige/bonuses
+  # at the expense of actually winning.
+  prestige_point_coef: 0.02
+  bonus_gained_coef: 0.01
+  # Small per-turn cost (every pick/buy/reserve alike), pushing the policy
+  # toward winning in FEWER turns -- pro Splendor play finishes around
+  # 19-20 turns using ~8-9 (bigger) buys, vs ~22+ turns and more, smaller
+  # buys at an intermediate level. Current self-play averages ~26
+  # turns/game (see avg_game_length_turns in training_log.csv); starting
+  # value picked to be the same order of magnitude as bonus_gained_coef.
+  # TUNING: watch avg_game_length_turns during training and adjust -- if
+  # it's not trending down toward the ~24-turn target, raise this; if
+  # win rates or play quality degrade, lower it. Not derivable analytically.
+  #
+  # MEASURED RESULT (main_run_03_stepcost, 0.01 for 164 updates):
+  # avg_game_length_turns stayed completely flat at 25.8-26.0 -- too weak
+  # to matter at this scale. Superseded below by a hard efficiency gate
+  # instead of a soft nudge; turned off (0.0) to isolate that experiment.
+  step_cost_coef: 0.0
+  # Hard efficiency gate on the WINNING seat only: reaching 15 points
+  # (a win in game terms) using MORE than max_buys_for_win buys or MORE
+  # than max_turns_for_win turns scores as `loss` instead of `win` --
+  # winning too slowly/wastefully doesn't count as a win at all. Winning
+  # within both caps scores `win` plus a small bonus per buy/turn UNDER
+  # the cap (so a more efficient qualifying win is preferred over a
+  # merely-qualifying one).
+  #
+  # MEASURED RESULT (main_run_04_efficiency_gate, 13 buys/26 turns for
+  # ~170 updates continued from update_710): win rate vs heuristic/
+  # synergy_reserve dropped noticeably (the predicted disruption from
+  # forcing the policy off its current strategy), but avg_game_length_turns
+  # never budged -- if anything drifted slightly UP. Abandoned before
+  # reaching a conclusion either way; disabled (null = off) so the
+  # zero_noble_points experiment below is evaluated in isolation.
+  max_buys_for_win: null
+  max_turns_for_win: null
+  buy_efficiency_bonus_coef: 0.0
+  turn_efficiency_bonus_coef: 0.0
+
+ppo:
+  learning_rate: 0.0003
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  value_coef: 0.5
+  entropy_coef: 0.01
+  max_grad_norm: 0.5
+  ppo_epochs: 4
+  minibatch_size: 256
+  rollout_steps: 4096   # per parallel env, per update
+
+network:
+  hidden_sizes: [256, 256]
+
+self_play:
+  num_parallel_envs: 16
+  historical_pool_size: 10
+  historical_snapshot_interval_updates: 10
+  # Probability an opponent seat is played by a sampled historical
+  # checkpoint instead of the current (learning) policy.
+  historical_opponent_prob: 0.3
+  # Probability an opponent seat NOT already claimed by a historical
+  # checkpoint is instead played by a random hand-crafted heuristic
+  # strategy (HeuristicAgent, ReserveRushAgent, BonusEngineAgent,
+  # NoNobleAgent, SynergyReserveAgent, BlockerAgent) this update. Pure
+  # self-play only ever has to beat earlier versions of itself, so it
+  # never has to encounter -- and can never learn to counter or adopt --
+  # a tactic it didn't stumble onto by chance; this seeds the opponent
+  # population with concrete named strategies instead.
+  #
+  # MEASURED RESULT (main_run_02_synergy, 0.3 for 400 updates): every
+  # resulting checkpoint LOST 72-75% of a 500-game head-to-head against
+  # the pre-experiment checkpoint it was continued from, despite similar
+  # or slightly better aggregate win rates vs random/heuristic/synergy --
+  # a reminder that self-play doesn't improve monotonically against a
+  # fixed ancestor, and that spending training budget on weaker heuristic
+  # opponents doesn't reliably transfer to strength against a strong RL
+  # opponent. Reset to 0.0 (off) so the step_cost_coef experiment below
+  # is evaluated in isolation, without this confound.
+  heuristic_opponent_prob: 0.0
+
+training:
+  total_updates: 300
+  device: cpu          # "cpu" or "cuda"
+  seed: 0
+  checkpoint_dir: checkpoints
+  checkpoint_interval_updates: 10
+  eval_interval_updates: 10
+  eval_games: 100
+  log_dir: runs
+  # TRAINING environments only (never evaluation/human play) use a copy of
+  # the data bundle where every noble is worth 0 points. Nobles are still
+  # claimed normally when bonus requirements are met -- only their point
+  # value changes -- so the policy can't rely on free noble points and
+  # must earn all 15 points via card purchases, on the theory that this
+  # biases it toward valuing big, efficient card buys instead of chasing
+  # noble-bonus colors as an alternate scoring path.
+  #
+  # MEASURED RESULT (main_run_05_zero_noble, 1250 updates from scratch):
+  # winner_avg_buys dropped hard, 16.0 -> ~10.2-10.7 -- a real effect,
+  # much closer to the ~8-9 "pro" range. But winner_avg_turns barely
+  # moved (27.1-27.3 vs 27.2) -- the saved buys were spent on more
+  # picks/reserves instead of fewer total turns -- and overall strength
+  # was clearly weaker (lost 64-69% head-to-head to the pre-experiment
+  # expert, worse vs heuristic/synergy too), plausibly just because a
+  # from-scratch run hasn't caught up to a continuation of an
+  # already-strong policy in the same update budget. Kept on (true) for
+  # the disable_blind_reserve_during_training experiment below, resuming
+  # from its strongest checkpoint (update_1190) instead of from scratch
+  # this time, so it gets more updates to catch up in raw strength.
+  #
+  # RETEST (main_run_08_zero_noble_retest, resuming from update_3500 of
+  # main_run_07_full_rules, an already-strong full-rules policy): turned
+  # back on to isolate whether the earlier buy-count drop (16.0 -> ~10.2)
+  # still costs strength once starting from strength instead of from
+  # scratch, removing the confound noted above.
+  zero_noble_points: true
+  # TRAINING environments only mask out R D1/D2/D3 (blind/face-down tier
+  # reservations) entirely -- the policy is never even offered that
+  # action. Evaluation/human play are unaffected. Requested because
+  # strong human play almost never uses this action but the RL agent
+  # does it often.
+  disable_blind_reserve_during_training: false

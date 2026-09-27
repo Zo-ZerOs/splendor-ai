@@ -1,0 +1,53 @@
+# Thresholds used by splendor_ai.training.select_difficulty to turn a
+# directory of training checkpoints into picked difficulty tiers.
+#
+# Tiers are ordered weakest to strongest. The TOP tier (last in `tiers`)
+# is chosen purely by composite score among candidates clearing its own
+# floor, then stability-rechecked. Every tier BELOW that is chosen as the
+# earliest (least-trained) checkpoint that clears its own floors AND is
+# beatable by the tier directly above it (max_win_rate_vs_next_tier) --
+# this is what keeps "easy" from degenerating into "the very first
+# checkpoint ever evaluated" (a self-play policy typically crushes random
+# almost immediately, so a random-only floor isn't enough on its own).
+#
+# As training keeps improving, promote a new checkpoint to "expert" and
+# shift the old tiers down (today's expert -> tomorrow's medium, etc.)
+# rather than overwriting a tier with something weaker.
+#
+# These are STARTING DEFAULTS. Per-project guidance: measure the actual
+# random-vs-random and heuristic-vs-heuristic baselines first (see
+# `python -m splendor_ai.training.evaluate --baseline ...`), then revisit
+# these numbers rather than assuming they're right.
+
+tiers: [easy, medium, expert]
+
+easy:
+  # "Clearly outperforms random" -- win rate when Easy occupies one seat
+  # against 3 random opponents, rotated across all seats.
+  min_win_rate_vs_random: 0.60
+  # See the module docstring above re: why this second floor exists.
+  min_win_rate_vs_heuristic: 0.30
+  # Must lose to the tier above it (medium) most of the time.
+  max_win_rate_vs_next_tier: 0.45
+
+medium:
+  min_win_rate_vs_random: 0.80
+  min_win_rate_vs_heuristic: 0.45
+  # Must lose to the tier above it (expert) most of the time.
+  max_win_rate_vs_next_tier: 0.45
+
+expert:
+  # Sanity floor before a checkpoint is even considered for Expert.
+  min_win_rate_vs_random: 0.80
+  # Composite score used to rank candidates that clear the floor:
+  #   composite = w_random * win_rate_vs_random + w_heuristic * win_rate_vs_heuristic
+  # Heuristic is weighted higher since it's the harder benchmark.
+  composite_weight_vs_random: 0.3
+  composite_weight_vs_heuristic: 0.7
+  # After picking the best composite-score candidate, re-evaluate it with
+  # an independently seeded batch of this many games; if the composite
+  # score drifts by more than `stability_tolerance`, flag it in the
+  # report (still selected, but the report says so -- do not treat a
+  # single evaluation batch as proof of quality).
+  stability_check_games: 300
+  stability_tolerance: 0.10

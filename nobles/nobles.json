@@ -1,0 +1,122 @@
+[
+  {
+    "id": "noble_001",
+    "points": 3,
+    "requirements": {
+      "white": 3,
+      "blue": 3,
+      "green": 0,
+      "red": 0,
+      "black": 3
+    },
+    "image": "images/noble_001.png"
+  },
+  {
+    "id": "noble_002",
+    "points": 3,
+    "requirements": {
+      "white": 0,
+      "blue": 0,
+      "green": 3,
+      "red": 3,
+      "black": 3
+    },
+    "image": "images/noble_002.png"
+  },
+  {
+    "id": "noble_003",
+    "points": 3,
+    "requirements": {
+      "white": 0,
+      "blue": 3,
+      "green": 3,
+      "red": 3,
+      "black": 0
+    },
+    "image": "images/noble_003.png"
+  },
+  {
+    "id": "noble_004",
+    "points": 3,
+    "requirements": {
+      "white": 3,
+      "blue": 0,
+      "green": 0,
+      "red": 3,
+      "black": 3
+    },
+    "image": "images/noble_004.png"
+  },
+  {
+    "id": "noble_005",
+    "points": 3,
+    "requirements": {
+      "white": 3,
+      "blue": 3,
+      "green": 3,
+      "red": 0,
+      "black": 0
+    },
+    "image": "images/noble_005.png"
+  },
+  {
+    "id": "noble_006",
+    "points": 3,
+    "requirements": {
+      "white": 0,
+      "blue": 4,
+      "green": 4,
+      "red": 0,
+      "black": 0
+    },
+    "image": "images/noble_006.png"
+  },
+  {
+    "id": "noble_007",
+    "points": 3,
+    "requirements": {
+      "white": 4,
+      "blue": 4,
+      "green": 0,
+      "red": 0,
+      "black": 0
+    },
+    "image": "images/noble_007.png"
+  },
+  {
+    "id": "noble_008",
+    "points": 3,
+    "requirements": {
+      "white": 0,
+      "blue": 0,
+      "green": 0,
+      "red": 4,
+      "black": 4
+    },
+    "image": "images/noble_008.png"
+  },
+  {
+    "id": "noble_009",
+    "points": 3,
+    "requirements": {
+      "white": 0,
+      "blue": 0,
+      "green": 4,
+      "red": 4,
+      "black": 0
+    },
+    "image": "images/noble_009.png"
+  },
+  {
+    "id": "noble_010",
+    "points": 3,
+    "requirements": {
+      "white": 4,
+      "blue": 0,
+      "green": 0,
+      "red": 0,
+      "black": 4
+    },
+    "image": "images/noble_010.png"
+  }
+]

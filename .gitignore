@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+runs/
+*.log
+
+# Keep only the curated best/latest checkpoints for playing and resuming
+# training; raw per-update snapshots from individual runs are excluded.
+checkpoints/*
+!checkpoints/easy/
+!checkpoints/medium/
+!checkpoints/expert/
+!checkpoints/latest.pt

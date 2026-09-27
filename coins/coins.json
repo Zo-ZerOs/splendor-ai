@@ -1,0 +1,32 @@
+[
+  {
+    "color": "black",
+    "is_joker": false,
+    "image": "images/black.png"
+  },
+  {
+    "color": "red",
+    "is_joker": false,
+    "image": "images/red.png"
+  },
+  {
+    "color": "green",
+    "is_joker": false,
+    "image": "images/green.png"
+  },
+  {
+    "color": "blue",
+    "is_joker": false,
+    "image": "images/blue.png"
+  },
+  {
+    "color": "white",
+    "is_joker": false,
+    "image": "images/white.png"
+  },
+  {
+    "color": "gold",
+    "is_joker": true,
+    "image": "images/gold.png"
+  }
+]

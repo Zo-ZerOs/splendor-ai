@@ -1,0 +1,13 @@
+{
+  "path": "checkpoints/main_run_01/update_710.pt",
+  "promoted_on": "2026-09-16",
+  "note": "Formerly the 'expert' checkpoint. Demoted to medium after main_run_07_full_rules/update_2500 was confirmed stronger via a 4-way mixed tournament (this checkpoint scored worst of 4, 0.214, below the 0.25 random baseline) and symmetric 1-vs-3 matchups against the new expert. See checkpoints/expert/selection_report.json for the comparison. This also replaces the previous 'medium' checkpoint (main_run_01/update_160.pt), which was noticeably weaker.",
+  "original_expert_selection_report": {
+    "vs_random_win_rate": 0.99,
+    "vs_heuristic_win_rate": 0.58,
+    "update": 710,
+    "composite": 0.703,
+    "stability_recheck_composite": 0.6843333333333332,
+    "stable": true
+  }
+}

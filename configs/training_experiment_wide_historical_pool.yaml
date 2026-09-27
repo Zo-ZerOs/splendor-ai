@@ -1,0 +1,72 @@
+# EXPERIMENT config -- tests whether widening the historical self-play
+# snapshot pool moves eval win rate vs HeuristicAgent/SynergyReserveAgent,
+# which plateaued under pure self-play and did NOT improve by mixing in
+# heuristic opponents directly (tested at heuristic_opponent_prob 0.3 and
+# 0.15 -- both cost ~72-75% of a head-to-head vs a same-update pure-self-
+# play checkpoint for no reliable eval-rate gain; see configs/training.yaml
+# history and configs/training_experiment_heuristic_mix.yaml).
+#
+# Live theory: historical_pool_size=10 + historical_snapshot_interval=10
+# means the self-play opponent pool only ever spans the last ~100
+# updates -- with entropy already low and the policy moving slowly, every
+# "historical" opponent is a near-mirror of the current policy, so
+# self-play converges to a narrow local equilibrium against ITSELF
+# specifically rather than staying robust to varied play. Unlike
+# heuristic-mixing, widening the pool is still pure self-play (opponents
+# are just older snapshots of the same lineage), so it should NOT carry
+# the same "loses badly to a same-update pure-self-play ancestor" cost --
+# that's exactly what this experiment measures.
+#
+# Only self_play.historical_pool_size and historical_snapshot_interval_updates
+# differ from configs/training.yaml (10/10, spanning 100 updates -> 20/25,
+# spanning 500 updates). Everything else, including the just-flipped
+# zero_noble_points:false / disable_blind_reserve_during_training:false
+# ("full rules") settings, matches the live chain it's branched from.
+
+reward:
+  win: 1.0
+  loss: -1.0
+  tie: 0.0
+  prestige_point_coef: 0.02
+  bonus_gained_coef: 0.01
+  step_cost_coef: 0.0
+  max_buys_for_win: null
+  max_turns_for_win: null
+  buy_efficiency_bonus_coef: 0.0
+  turn_efficiency_bonus_coef: 0.0
+
+ppo:
+  learning_rate: 0.0003
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  value_coef: 0.5
+  entropy_coef: 0.01
+  max_grad_norm: 0.5
+  ppo_epochs: 4
+  minibatch_size: 256
+  rollout_steps: 4096
+
+network:
+  hidden_sizes: [256, 256]
+
+self_play:
+  num_parallel_envs: 16
+  # THE VARIABLES UNDER TEST -- pool 10->20, interval 10->25 updates,
+  # widening the span of history the pool draws from 100 -> 500 updates.
+  historical_pool_size: 20
+  historical_snapshot_interval_updates: 25
+  historical_opponent_prob: 0.3
+  heuristic_opponent_prob: 0.0
+
+training:
+  total_updates: 300
+  device: cpu
+  seed: 0
+  checkpoint_dir: checkpoints
+  checkpoint_interval_updates: 10
+  eval_interval_updates: 10
+  eval_games: 100
+  log_dir: runs
+  zero_noble_points: false
+  disable_blind_reserve_during_training: false

@@ -1,0 +1,12 @@
+{
+  "games": 1000,
+  "avg_turns_per_player": 28.89,
+  "avg_prestige": 11.7735,
+  "avg_purchased_cards": 14.166,
+  "win_rate_by_seat": {
+    "0": 0.355,
+    "1": 0.231,
+    "2": 0.217,
+    "3": 0.188
+  }
+}

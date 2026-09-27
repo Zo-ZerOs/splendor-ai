@@ -1,0 +1,59 @@
+# EXPERIMENT config -- tests whether reintroducing a small heuristic
+# opponent mix moves eval win rate vs HeuristicAgent/SynergyReserveAgent,
+# which has been flat since ~update 300 of main_run_06 under pure
+# self-play (heuristic_opponent_prob: 0.0). main_run_02_synergy already
+# measured prob=0.3 for 400 updates: it LOST 72-75% of a head-to-head
+# against its pre-experiment ancestor despite similar/slightly better
+# aggregate eval win rates -- so this tries a smaller prob (0.15, half of
+# that) to see if a lighter touch gets some of the eval-win-rate benefit
+# without as much self-play-strength cost. Identical to configs/training.yaml
+# in every other respect (same reward/ppo/network/training settings, same
+# zero_noble_points + disable_blind_reserve_during_training) so this is
+# the only isolated variable versus the live chain it's branched from.
+
+reward:
+  win: 1.0
+  loss: -1.0
+  tie: 0.0
+  prestige_point_coef: 0.02
+  bonus_gained_coef: 0.01
+  step_cost_coef: 0.0
+  max_buys_for_win: null
+  max_turns_for_win: null
+  buy_efficiency_bonus_coef: 0.0
+  turn_efficiency_bonus_coef: 0.0
+
+ppo:
+  learning_rate: 0.0003
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  value_coef: 0.5
+  entropy_coef: 0.01
+  max_grad_norm: 0.5
+  ppo_epochs: 4
+  minibatch_size: 256
+  rollout_steps: 4096
+
+network:
+  hidden_sizes: [256, 256]
+
+self_play:
+  num_parallel_envs: 16
+  historical_pool_size: 10
+  historical_snapshot_interval_updates: 10
+  historical_opponent_prob: 0.3
+  # THE VARIABLE UNDER TEST -- everything else matches configs/training.yaml.
+  heuristic_opponent_prob: 0.15
+
+training:
+  total_updates: 300
+  device: cpu
+  seed: 0
+  checkpoint_dir: checkpoints
+  checkpoint_interval_updates: 10
+  eval_interval_updates: 10
+  eval_games: 100
+  log_dir: runs
+  zero_noble_points: true
+  disable_blind_reserve_during_training: true

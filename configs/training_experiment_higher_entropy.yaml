@@ -1,0 +1,77 @@
+# EXPERIMENT config -- third attempt at fixing the self-play eval
+# plateau. Prior two attempts both failed the same way: heuristic_opponent_prob
+# mixing (0.3, then 0.15) and widening the historical snapshot pool
+# (20/25 vs 10/10) both cost ~73-75% of a head-to-head against a
+# same-update pure-self-play checkpoint, for no reliable eval-vs-heuristic/
+# synergy gain -- see configs/training_experiment_heuristic_mix.yaml and
+# configs/training_experiment_wide_historical_pool.yaml for the measured
+# results. Both are dead ends; do not repeat.
+#
+# This experiment attacks the plateau's own symptom directly instead of
+# the opponent pool: entropy has been monotonically declining the ENTIRE
+# training run (2.10 at update 1 -> ~0.60-0.62 now, past update 2100) even
+# though eval-vs-heuristic/synergy and avg_game_length_turns have been
+# flat since ~update 300. That combination -- policy still sharpening,
+# but not improving against fixed external opponents -- suggests it
+# converged early to a narrow, self-referential local equilibrium and is
+# just getting MORE confident in that same equilibrium, not exploring
+# past it. ppo.entropy_coef controls how strongly the entropy bonus is
+# weighted in the PPO loss (see splendor_ai/training/train.py's
+# `loss = policy_loss + value_coef * value_loss - entropy_coef * entropy`);
+# raising it should slow the entropy decay and keep the policy exploring
+# a wider part of strategy space for longer, instead of purely widening
+# WHO it plays against (the two rejected approaches above).
+#
+# Only ppo.entropy_coef differs from configs/training.yaml (0.01 -> 0.03,
+# 3x). Everything else, including the current zero_noble_points:false /
+# disable_blind_reserve_during_training:false "full rules" settings and
+# the original historical_pool_size:10 / historical_snapshot_interval:10,
+# matches the live chain it's branched from.
+
+reward:
+  win: 1.0
+  loss: -1.0
+  tie: 0.0
+  prestige_point_coef: 0.02
+  bonus_gained_coef: 0.01
+  step_cost_coef: 0.0
+  max_buys_for_win: null
+  max_turns_for_win: null
+  buy_efficiency_bonus_coef: 0.0
+  turn_efficiency_bonus_coef: 0.0
+
+ppo:
+  learning_rate: 0.0003
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  value_coef: 0.5
+  # THE VARIABLE UNDER TEST -- 0.01 -> 0.03 (3x), to slow the entropy
+  # decay and keep the policy exploring longer instead of settling early.
+  entropy_coef: 0.03
+  max_grad_norm: 0.5
+  ppo_epochs: 4
+  minibatch_size: 256
+  rollout_steps: 4096
+
+network:
+  hidden_sizes: [256, 256]
+
+self_play:
+  num_parallel_envs: 16
+  historical_pool_size: 10
+  historical_snapshot_interval_updates: 10
+  historical_opponent_prob: 0.3
+  heuristic_opponent_prob: 0.0
+
+training:
+  total_updates: 300
+  device: cpu
+  seed: 0
+  checkpoint_dir: checkpoints
+  checkpoint_interval_updates: 10
+  eval_interval_updates: 10
+  eval_games: 100
+  log_dir: runs
+  zero_noble_points: false
+  disable_blind_reserve_during_training: false
